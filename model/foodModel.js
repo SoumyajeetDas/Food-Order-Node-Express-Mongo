@@ -28,6 +28,11 @@ const foodSchema = new mongoose.Schema({
         max: [5, "Rating cannot be above 5"],
         min: [0, "Rating cannot be less than 1"],
         default: 0
+    },
+    imageUrl :{
+        type:String,
+        required:[true, "Please provide an image url"],
+        trim:true
     }
 });
 
