@@ -2,34 +2,103 @@ const Food = require('../model/foodModel')
 
 
 
-exports.getAllFoods = async(req,res,next)=>{
-    const foodData = await Food.find();
+exports.getAllFoods = async (req, res, next) => {
 
-    try{
-        if(foodData.length === 0){
+    try {
+        const foodData = await Food.find().sort({ name: 1 });
+
+        if (foodData.length === 0) {
             return res.status(400).send({
                 status: "400 Bad Request",
-                message:"No Food"
+                message: "No Food"
             })
         }
 
         res.status(200).send({
             status: "200 OK",
-            length:foodData.length,
-            data:foodData
+            length: foodData.length,
+            data: foodData
         });
     }
-    catch(err){
-        if(process.env.NODE_ENV === 'production'){
+    catch (err) {
+        if (process.env.NODE_ENV === 'production') {
             return res.status(500).send({
                 status: "500 Internal Server Error",
-                message:"Problem from the Database Side"
+                message: "Problem from the Database Side"
             });
         }
         res.status(500).send({
             status: "500 Internal Server Error",
-            message:err.message
+            message: err.message
         });
     }
-    
+
+}
+
+exports.getFood = async (req, res, next) => {
+
+    try {
+        const foodData = await Food.find({ type: req.params.type }).sort({ name: 1 });
+
+        if (foodData.length === 0) {
+
+            return res.status(400).send({
+                status: "400 Bad Request",
+                message: "No Food"
+            })
+        }
+
+        res.status(200).send({
+            status: "200 OK",
+            length: foodData.length,
+            data: foodData
+        });
+    }
+    catch (err) {
+        if (process.env.NODE_ENV === 'production') {
+            return res.status(500).send({
+                status: "500 Internal Server Error",
+                message: "Problem from the Database Side"
+            });
+        }
+        res.status(500).send({
+            status: "500 Internal Server Error",
+            message: err.message
+        });
+    }
+}
+
+exports.search = async (req, res) => {
+    try {
+        const foodData = await Food.find({
+            $or: [
+                { "name": { $regex: req.params.key } }
+            ]
+        }).sort({name:1});
+
+        // if (foodData.length === 0) {
+        //     return res.status(400).send({
+        //         status: "400 Bad Request",
+        //         message: "No Food"
+        //     })
+        // }
+
+        res.status(200).send({
+            status: "200 OK",
+            length: foodData.length,
+            data: foodData
+        });
+    }
+    catch (err) {
+        if (process.env.NODE_ENV === 'production') {
+            return res.status(500).send({
+                status: "500 Internal Server Error",
+                message: "Problem from the Database Side"
+            });
+        }
+        res.status(500).send({
+            status: "500 Internal Server Error",
+            message: err.message
+        });
+    }
 }
