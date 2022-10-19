@@ -1,14 +1,15 @@
 const express = require('express');
 const foodController = require('../controller/foodController');
+const authController = require('../controller/authController');
 
 const router = express.Router();
 
 router.use(express.json());
 
 
-router.get("/", foodController.getAllFoods)
-router.get("/search/:key", foodController.search)
-router.get("/:type", foodController.getFood)
+router.get("/", authController.protect, foodController.getAllFoods)
+router.get("/search/:key", authController.protect, foodController.search)
+router.get("/:type", authController.protect, foodController.getFood)
 
 
 module.exports = router;

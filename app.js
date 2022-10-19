@@ -1,5 +1,6 @@
 const express = require('express');
 const foodRouter = require('./router/foodRouter');
+const authRouter = require('./router/authRouter')
 const cors = require('cors')
 
 const app = express();
@@ -11,6 +12,7 @@ app.use(cors({
 }));
 
 app.use("/api/v1/bengalifood",foodRouter);
+app.use("/api/v1/authenticate",authRouter)
 
 app.all("*", (req, res) => {
     res.status(404).send({
