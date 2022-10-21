@@ -42,7 +42,8 @@ exports.signup = async (req, res, next) => {
         // });
 
 
-        newUser.password = ""; // Password should not be shown to the client
+        newUser.password = undefined; // Password should not be shown to the client
+        newUser.email = undefined;
 
 
 
@@ -51,24 +52,18 @@ exports.signup = async (req, res, next) => {
         // Sending the token
         res.status(201).send({
             status: "201 Created successfully",
-            token,
             data: {
-                user: newUser
+                user: newUser,
+                token,
             }
         });
 
 
     }
     catch (err) {
-        if (process.env.NODE_ENV === 'production') {
-            return res.status(500).send({
-                status: "500 Internal Server Error",
-                message: "Problem from the Database Side"
-            });
-        }
         res.status(500).send({
             status: "500 Internal Server Error",
-            message: err.message
+            message: err.code === 11000 ? 'Duplicate' : err.message
         });
     }
 };
@@ -76,43 +71,65 @@ exports.signup = async (req, res, next) => {
 
 
 exports.login = async (req, res, next) => {
-    const { email, password } = req.body;
+
+
+    try {
+        if (!req.body.email) {
+            return res.status(400).send({
+                status: "400 Bad Request",
+                message: 'Please provide user details'
+            })
+        }
+        const { email, password } = req.body;
 
 
 
-    if (!email || !password)
-        return res.status(400).send({
-            status: "400 Bad Request",
-            message: "Please provide the username and password"
-        })
+        if (!email || !password)
+            return res.status(400).send({
+                status: "400 Bad Request",
+                message: "Please provide the username and password"
+            })
 
 
-    const user = await User.findOne({ email }).select("+password")
+        const user = await User.findOne({ email }).select("+password")
 
 
-    // user returns a document and on that Instance Method is executed.
-    if (user && await user.correctPassword(password, user.password)) { // Checking for either user exists or not or password is incorrect
+        // user returns a document and on that Instance Method is executed.
+        if (user && await user.correctPassword(password, user.password)) { // Checking for either user exists or not or password is incorrect
 
-        // Creating Token
-        const token = jwtToken(user._id)
+            // Creating Token
+            const token = jwtToken(user._id)
+
+            user.password = undefined;
+            user.email = undefined;
 
 
 
-        // Sending the token
-        res.status(200).send({
-            status: "200 OK",
-            token
-        })
+            // Sending the token
+            res.status(200).send({
+                status: "200 OK",
+                data: {
+                    user,
+                    token,
+                }
+            })
+        }
+        else {
+
+            return res.status(401).send({
+                status: "401 Unauthorized",
+                message: "Please provide correct email address and password"
+            })
+
+        }
     }
-    else {
 
-        return res.status(401).send({
-            status: "401 Unauthorized",
-            message: "Please provide correct email address and password"
-        })
-
+    catch (err) {
+        res.status(500).send({
+            status: "500 Internal Server Error",
+            message: err.message
+        });
     }
-
 
 };
 

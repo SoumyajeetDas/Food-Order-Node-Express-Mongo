@@ -16,20 +16,20 @@ const userSchema = new mongoose.Schema({
         unique: true,
         trim: true,
         lowercase: true,
-        // validate:{
-        //     validation:function(val){
-        //         let validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-        //         return validRegex.test(val)
-        //     },
-        //     message:"Please enter a valid email address"
-        // }
+        validate:{
+            validator:function(val){
+                let validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+                return validRegex.test(val)
+            },
+            message:"Please enter a valid email address"
+        }
 
-        validate: [validator.isEmail, 'Please provide a valid email address']
+        // validate: [validator.isEmail, 'Please provide a valid email address']
     },
     password: {
         type: String,
         required: [true, "Please enter your Password"],
-        minlength: [8, "Password should be of 8 characters"],
+        // minlength: [8, "Password should be of 8 characters"],
         select: false
     },
     confirmpassword: {
