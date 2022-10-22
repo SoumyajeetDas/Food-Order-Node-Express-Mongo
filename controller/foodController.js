@@ -10,7 +10,7 @@ exports.getAllFoods = async (req, res, next) => {
         if (foodData.length === 0) {
             return res.status(400).send({
                 status: "400 Bad Request",
-                message: "No Food"
+                message: "No Food Found"
             })
         }
 
