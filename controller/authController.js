@@ -1,4 +1,5 @@
 const User = require('../model/userModel');
+const Cart = require('../model/cartModel');
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
 
@@ -28,6 +29,8 @@ exports.signup = async (req, res, next) => {
 
         const newUser = await User.create(req.body);
 
+        req.user = newUser; // This will be used by other middleware
+
         // We should not pass req.body as it will be a security breach. Whatever parameters we need should be specified separately. 
         // For eg: We have user model where role is default to user. If in the body user adds the role as Admin then create will take 
         // that req.body and will make user as Admin which is a security. But if we specify the field one by one within create then role
@@ -49,15 +52,31 @@ exports.signup = async (req, res, next) => {
 
         const token = jwtToken(newUser._id)     //Creating Token
 
+        // const cart = {
+        //     items:[],
+        //     totalPrice:0
+        // };
+
+        // // When we login we have the user in the request so we can access the id of the user directly.
+        // if (!req.body.user) {
+        //     req.body.user = req.user._id;
+        // }
+
+        const newCart = await Cart.create({
+            items:[],
+            totalPrice:0,
+            user: newUser._id
+        });
+
         // Sending the token
         res.status(201).send({
             status: "201 Created successfully",
             data: {
                 user: newUser,
                 token,
-            }
+            },
+            cart:newCart
         });
-
 
     }
     catch (err) {

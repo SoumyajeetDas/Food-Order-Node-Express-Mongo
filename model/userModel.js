@@ -76,4 +76,4 @@ userSchema.methods.correctPassword = async function (candidatePassword, userPass
 
 let Users = mongoose.model("users", userSchema);
 
-module.exports = Users
+module.exports = Users;
