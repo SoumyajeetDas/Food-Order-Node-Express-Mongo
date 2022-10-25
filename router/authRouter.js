@@ -20,6 +20,7 @@ router.use(mongoSanitize());
 router
 .post("/signup",authController.signup)
 .post("/login",authController.login)
+.post("/forgotPassword", authController.forgotPassword)
 
 
 

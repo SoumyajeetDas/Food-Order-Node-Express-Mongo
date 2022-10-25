@@ -63,8 +63,8 @@ exports.signup = async (req, res, next) => {
         // }
 
         const newCart = await Cart.create({
-            items:[],
-            totalPrice:0,
+            items: [],
+            totalPrice: 0,
             user: newUser._id
         });
 
@@ -75,7 +75,7 @@ exports.signup = async (req, res, next) => {
                 user: newUser,
                 token,
             },
-            cart:newCart
+            cart: newCart
         });
 
     }
@@ -215,4 +215,53 @@ exports.protect = async (req, res, next) => {
 
     };
 
+}
+
+
+
+exports.forgotPassword = async (req, res) => {
+    try {
+        const { email, password, confirmpassword } = req.body;
+
+        if (!email || !password)
+            return res.status(400).send({
+                status: "400 Bad Request",
+                message: "Please provide the username and password"
+            })
+
+
+        const userData = await User.findOne({ email });
+
+        if (!userData) {
+            return res.status(400).send({
+                status: "400 Bad Request",
+                message: "Please provide correct email address"
+            })
+        }
+
+        userData.password = password;
+        userData.confirmpassword = confirmpassword
+
+        await userData.save();
+
+        res.status(200).send({
+            status: "200 OK",
+            message: "Password has been updated. Please login now with the new password"
+        })
+    }
+
+    catch (err) {
+        if (process.env.NODE_ENV === 'production') {
+            return res.status(500).send({
+                status: "500 Internal Server Error",
+                message: "Sorry !! Password Could not be updated"
+            })
+        }
+
+        res.status(500).send({
+            status: "500 Internal Server Error",
+            message: err.message
+        })
+
+    }
 }
