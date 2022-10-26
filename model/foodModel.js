@@ -23,10 +23,8 @@ const foodSchema = new mongoose.Schema({
             message: '{VALUE} is not suported'
         }
     },
-    rating: {
+    avgRating: {
         type: Number,
-        max: [5, "Rating cannot be above 5"],
-        min: [0, "Rating cannot be less than 1"],
         default: 0
     },
     imageUrl :{

@@ -1,7 +1,8 @@
 const express = require('express');
 const foodRouter = require('./router/foodRouter');
 const authRouter = require('./router/authRouter');
-const cartRouter = require('./router/cartRouter')
+const cartRouter = require('./router/cartRouter');
+const ratingRouter = require('./router/ratingRouter')
 const cors = require('cors')
 
 const app = express();
@@ -15,6 +16,7 @@ app.use(cors({
 app.use("/api/v1/bengalifood", foodRouter);
 app.use("/api/v1/authenticate", authRouter);
 app.use("/api/v1/cart", cartRouter);
+app.use("/api/v1/review", ratingRouter);
 
 app.all("*", (req, res) => {
     res.status(404).send({
