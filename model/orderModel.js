@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const orderSchema = new mongoose.Schema({
     address: {
         type: String,
-        required: [true, "Please enter the city"]
+        required: [true, "Please enter the address"]
     },
     orders: {
 
@@ -32,6 +32,11 @@ const orderSchema = new mongoose.Schema({
             message: "Please enter the orders properly"
         }
     },
+
+    dateOfOrder:{
+        type:Date,
+        default:Date.now
+    },
     
     totalPrice:{
         type:Number,
@@ -46,6 +51,10 @@ const orderSchema = new mongoose.Schema({
         type:mongoose.Schema.ObjectId,
         ref:'Users',
         required: [true, "Order must belong to a User"]
+    },
+    orderId:{
+        type:String,
+        default:"No Order Id Present"
     }
 
 });

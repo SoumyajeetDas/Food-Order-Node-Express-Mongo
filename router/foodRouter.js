@@ -9,7 +9,7 @@ router.use(express.json());
 
 router.get("/", authController.protect, foodController.getAllFoods)
 router.get("/search/:key", authController.protect, foodController.search)
-router.get("/:type", authController.protect, foodController.getFood)
+router.get("/:type", authController.protect, foodController.getFoodWithType)
 
 
 module.exports = router;

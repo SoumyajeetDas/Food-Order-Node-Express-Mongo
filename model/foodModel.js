@@ -19,7 +19,7 @@ const foodSchema = new mongoose.Schema({
         type: String,
         required: [true, "Please enter the type"],
         enum: {
-            values: ['Breakfast', 'Lunch', 'Dinner'],
+            values: ['Breakfast', 'Lunch', 'Dinner', 'Desserts'],
             message: '{VALUE} is not suported'
         }
     },

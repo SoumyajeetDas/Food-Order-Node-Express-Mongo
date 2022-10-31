@@ -5,7 +5,7 @@ const Food = require('../model/foodModel')
 exports.getAllFoods = async (req, res, next) => {
 
     try {
-        const foodData = await Food.find().sort({ name: 1 });
+        const foodData = await Food.find().sort({ avgRating: -1 });
 
         if (foodData.length === 0) {
             return res.status(400).send({
@@ -35,10 +35,10 @@ exports.getAllFoods = async (req, res, next) => {
 
 }
 
-exports.getFood = async (req, res, next) => {
+exports.getFoodWithType = async (req, res, next) => {
 
     try {
-        const foodData = await Food.find({ type: req.params.type }).sort({ name: 1 });
+        const foodData = await Food.find({ type: req.params.type }).sort({ avgRating: 1 });
 
         if (foodData.length === 0) {
 

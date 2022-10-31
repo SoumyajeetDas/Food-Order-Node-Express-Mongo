@@ -1,9 +1,10 @@
 const Order = require('../model/orderModel');
 
 
+
 exports.getOrderForUser = async (req, res) => {
     try {
-        const orderData = await Order.find({userId:req.user._id});
+        const orderData = await Order.find({userId:req.user._id}).sort({dateOfOrder:-1, orderId:1});
 
         if (orderData.length === 0) {
             return res.status(400).send({
