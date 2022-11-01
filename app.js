@@ -10,7 +10,7 @@ const app = express();
 
 
 app.use(cors({
-    origin: "http://localhost:3000",
+    origin: ["http://localhost:3000",'https://bengali-food-webapp.herokuapp.com'],
     methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH']
 }));
 
