@@ -69,6 +69,6 @@ ratingSchema.post('save', function(){
 });
 
 
-let Ratings = mongoose.model("reviews", ratingSchema);
+let Ratings = mongoose.model("ratings", ratingSchema);
 
 module.exports = Ratings;
