@@ -10,7 +10,7 @@ const app = express();
 
 
 app.use(cors({
-    origin: ["http://localhost:3000",'https://bengali-food-webapp.herokuapp.com', 'https://main--sprightly-flan-76b02a.netlify.app/'],
+    origin: ["http://localhost:3000",'https://bengali-food-webapp.herokuapp.com', 'https://main--sprightly-flan-76b02a.netlify.app'],
     methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH']
 }));
 
