@@ -1,12 +1,10 @@
 const Rating = require('../model/ratingModel');
 
-// createReview is used by two controller : reviewController & tourController.
-exports.createReview = async (req, res, next) => {
+/******************************Add Rating**************************************/
+exports.addRating = async (req, res, next) => {
 
 
     try {
-        // For reviewController post request the body.tour will be present in the request so the control will not enter this if block.
-        // For tourController post request there will be nothing in the body so the control will automatically enter the the if block
 
         if (!req.body.tour) {
 

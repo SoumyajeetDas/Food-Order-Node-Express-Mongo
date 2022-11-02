@@ -8,7 +8,7 @@ const router = express.Router();
 router.use(express.json());
 
 
-router.post("/addReview/:foodId",authController.protect, ratingController.createReview);
+router.post("/addReview/:foodId",authController.protect, ratingController.addRating);
 
 
 module.exports = router;

@@ -54,6 +54,8 @@ ratingSchema.statics.calcAvgRating = async function (foodId) {
         }
     ]);
 
+
+    // Updating the avgRating Field 
     await Food.findByIdAndUpdate(foodId, {
         avgRating:data[0].avgRating
     });
@@ -62,6 +64,9 @@ ratingSchema.statics.calcAvgRating = async function (foodId) {
 
 
 /******************Mongoose Document Middleware*********************/
+
+
+// post middleware does not support next()
 ratingSchema.post('save', function(){
 
     // constructor gets the access on the Reviews Model over which the static method will be called

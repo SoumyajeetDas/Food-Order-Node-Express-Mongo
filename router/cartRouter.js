@@ -5,7 +5,6 @@ const authController = require('../controller/authController')
 
 const router = express.Router();
 
-// Middleware
 
 router.use(express.json()) 
 

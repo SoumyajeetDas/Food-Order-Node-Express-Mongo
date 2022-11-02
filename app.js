@@ -8,18 +8,22 @@ const cors = require('cors')
 
 const app = express();
 
-
+// CORS POLICY
 app.use(cors({
     origin: ["http://localhost:3000", 'https://bengali-food-webapp.netlify.app'],
     methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH']
 }));
 
+
+// Routes
 app.use("/api/v1/bengalifood", foodRouter);
 app.use("/api/v1/authenticate", authRouter);
 app.use("/api/v1/cart", cartRouter);
 app.use("/api/v1/review", ratingRouter);
 app.use("/api/v1/order", orderRouter);
 
+
+// Router for any type of routing for 404 error 
 app.all("*", (req, res) => {
     res.status(404).send({
         status: "404 Error",

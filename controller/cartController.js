@@ -1,7 +1,7 @@
 const Cart = require('../model/cartModel');
 
 
-
+/*********************************Getting Cart Data for a parricular user***************************************/
 exports.getCartData = async (req, res) => {
     try {
         if (req.params.id) {
@@ -44,6 +44,7 @@ exports.getCartData = async (req, res) => {
 
 
 
+/********************************Update the cart data just when user adds anything in cart*****************************************/
 exports.updateCartData = async (req, res) => {
     try {
         if (JSON.stringify(req.body)==='{}') {
@@ -53,9 +54,12 @@ exports.updateCartData = async (req, res) => {
             })
         }
 
+
+        // Get the id 
         const id = req.user._id.toString()
 
 
+        // Wrt to user id update the cart of the specified user
         const result = await Cart.updateOne({ user: id }, { $set: req.body }, { runValidators: true });
 
 

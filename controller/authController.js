@@ -14,6 +14,7 @@ const jwtToken = id => {
 }
 
 
+/*******************************Sign Up API************************************/
 exports.signup = async (req, res, next) => {
 
 
@@ -52,16 +53,8 @@ exports.signup = async (req, res, next) => {
 
         const token = jwtToken(newUser._id)     //Creating Token
 
-        // const cart = {
-        //     items:[],
-        //     totalPrice:0
-        // };
-
-        // // When we login we have the user in the request so we can access the id of the user directly.
-        // if (!req.body.user) {
-        //     req.body.user = req.user._id;
-        // }
-
+        
+        // Adding a new Cart for the specified user
         const newCart = await Cart.create({
             items: [],
             totalPrice: 0,

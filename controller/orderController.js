@@ -1,7 +1,7 @@
 const Order = require('../model/orderModel');
 
 
-
+/*******************************Get the Payment Order for an user*******************************************/
 exports.getOrderForUser = async (req, res) => {
     try {
         const orderData = await Order.find({userId:req.user._id}).sort({dateOfOrder:-1, orderId:1});
@@ -35,9 +35,12 @@ exports.getOrderForUser = async (req, res) => {
 }
 
 
+/*******************************Just after payment add order with the userId*******************************************/
 exports.addOrder = async (req, res) => {
 
     try {
+
+        // Adding the userId for the particular user doing payment ordering
         req.body.userId = req.user._id;
         const orderData = await Order.create(req.body);
 
