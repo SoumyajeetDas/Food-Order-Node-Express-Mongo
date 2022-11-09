@@ -4,9 +4,17 @@ const authRouter = require('./router/authRouter');
 const cartRouter = require('./router/cartRouter');
 const ratingRouter = require('./router/ratingRouter');
 const orderRouter = require('./router/orderRouter')
-const cors = require('cors')
+const cors = require('cors');
+var helmet =require('helmet');
+
+
 
 const app = express();
+
+// For Security like XSS attacks, clickjacking, and other types of vulnerabilities
+app.use(helmet());
+
+
 
 // CORS POLICY
 app.use(cors({

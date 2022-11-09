@@ -8,7 +8,12 @@ const router = express.Router();
 router.use(express.json());
 
 
-router.post("/addReview/:foodId",authController.protect, ratingController.addRating);
+// Made Authentication as Global Middleware for this route as it will be used by all the other routes before their controller getting
+// executed
+router.use(authController.protect);
+
+
+router.post("/addReview/:foodId", ratingController.addRating);
 
 
 module.exports = router;

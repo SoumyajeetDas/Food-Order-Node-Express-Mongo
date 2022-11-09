@@ -6,10 +6,13 @@ const router = express.Router();
 
 router.use(express.json());
 
+// Made Authentication as Global Middleware for this route as it will be used by all the other routes before their controller getting
+// executed
+router.use(authController.protect)
 
-router.get("/", authController.protect, foodController.getAllFoods)
-router.get("/search/:key", authController.protect, foodController.search)
-router.get("/:type", authController.protect, foodController.getFoodWithType)
+router.get("/", foodController.getAllFoods)
+router.get("/search/:key", foodController.search)
+router.get("/:type", foodController.getFoodWithType)
 
 
 module.exports = router;

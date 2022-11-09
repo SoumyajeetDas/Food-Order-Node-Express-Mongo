@@ -7,10 +7,17 @@ const router = express.Router();
 
 router.use(express.json());
 
+
+// Made Authentication as Global Middleware for this route as it will be used by all the other routes before their controller getting
+// executed
+router.use(authController.protect);
+
+
+
 router
 .route("/")
-.get(authController.protect, orderController.getOrderForUser)
-.post(authController.protect, orderController.addOrder)
+.get(orderController.getOrderForUser)
+.post(orderController.addOrder)
 
 
 module.exports = router;
