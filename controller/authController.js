@@ -249,9 +249,16 @@ exports.protect = async (req, res, next) => {
             })
         }
 
+
+
         // Verification of Token if somebody manipulated or not or already expired
         // The Token returned from login or regiser does not have the scret key. So during verification we have to pass the 
         // secret key as well to the verify() method.
+
+
+
+        // This way of writing jwt.verify is the bst as it scronizes the flow otherwise it will throw error as next() will get
+        // executed and then return res.status will get executed and that should not be the case
         const decoded = await promisify(jwt.verify)(clientToken, process.env.Client_Side_JWT_SECRET);
 
 
