@@ -1,9 +1,13 @@
 const express = require('express');
 const cartController = require('../controller/cartController');
-const authController = require('../controller/authController')
+const authController = require('../controller/authController');
+const cookieParser = require('cookie-parser');
 
 
 const router = express.Router();
+
+
+router.use(cookieParser());
 
 
 router.use(express.json());

@@ -4,14 +4,26 @@ const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
 
 
-// Creating JWT Token and returning back
-const jwtToken = id => {
+let serverToken;
+
+
+/***********************************Creating JWT Token and returning back*********************************/
+const clientSideJwtToken = id => {
 
     // When the token is returned it is removing the Secret Key and then returning.
-    return jwt.sign({ id }, process.env.JWT_SECRET, {
+    return jwt.sign({ id }, process.env.Client_Side_JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRESIn
     });
 }
+
+
+const serverSideJwtToken = id => {
+    return jwt.sign({ id }, process.env.Server_Side_JWT_SECRET, {
+        expiresIn: process.env.JWT_EXPIRESIn
+    });
+}
+
+
 
 
 /*******************************Sign Up API************************************/
@@ -50,10 +62,11 @@ exports.signup = async (req, res, next) => {
         newUser.email = undefined;
 
 
+        //Creating Token
+        const clientSideToken = clientSideJwtToken(newUser._id);
+        const serverSideToken = serverSideJwtToken(newUser._id);
 
-        const token = jwtToken(newUser._id)     //Creating Token
 
-        
         // Adding a new Cart for the specified user
         const newCart = await Cart.create({
             items: [],
@@ -61,18 +74,46 @@ exports.signup = async (req, res, next) => {
             user: newUser._id
         });
 
+
+
+        const cookieOptions = {
+            expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRESIn * 24 * 60 * 60 * 1000),
+
+            // secure:true, // Sends cookies only when the request is encrypted like https
+
+            httpOnly: true // This prevents any script in the browser like JS to access and modify the cookie from the Browser. 
+            // The cookie can only be accessed by the server like the Express Server here when request is happening from he server.
+        }
+
+        if (process.env.NODE_ENV === 'production') {
+            cookie.secure = true; // For production making the secure as true
+        }
+
+        res.cookie('jwt', serverSideToken, cookieOptions)
+
+
+
+
         // Sending the token
         res.status(201).send({
             status: "201 Created successfully",
             data: {
                 user: newUser,
-                token,
+                token: clientSideToken,
             },
             cart: newCart
         });
 
     }
     catch (err) {
+
+        if (process.env.NODE_ENV === 'production') {
+            return res.status(500).send({
+                status: "500 Internal Server Error",
+                message: err.code === 11000 ? 'Duplicate' : "Could not register problem from the backend !!"
+            })
+
+        }
         res.status(500).send({
             status: "500 Internal Server Error",
             message: err.code === 11000 ? 'Duplicate' : err.message
@@ -109,11 +150,34 @@ exports.login = async (req, res, next) => {
         // user returns a document and on that Instance Method is executed.
         if (user && await user.correctPassword(password, user.password)) { // Checking for either user exists or not or password is incorrect
 
-            // Creating Token
-            const token = jwtToken(user._id)
+
+            //Creating Token
+            const clientSideToken = clientSideJwtToken(user._id);
+            const serverSideToken = serverSideJwtToken(user._id);
+
+
 
             user.password = undefined;
             user.email = undefined;
+
+
+            // console.log(process.env.JWT_EXPIRESIn);
+
+
+            const cookieOptions = {
+                expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRESIn * 24 * 60 * 60 * 1000),
+
+                // secure:true, // Sends cookies only when the request is encrypted like https
+
+                httpOnly: true // This prevents any script in the browser like JS to access and modify the cookie from the Browser. 
+                // The cookie can only be accessed by the server like the Express Server here when request is happening from he server.
+            }
+
+            // if (process.env.NODE_ENV === 'production') {
+            //     cookie.secure = true; // For production making the secure as true
+            // }
+
+            res.cookie('jwt', serverSideToken, cookieOptions)
 
 
 
@@ -122,7 +186,7 @@ exports.login = async (req, res, next) => {
                 status: "200 OK",
                 data: {
                     user,
-                    token,
+                    token: clientSideToken
                 }
             })
         }
@@ -137,6 +201,14 @@ exports.login = async (req, res, next) => {
     }
 
     catch (err) {
+
+        if (process.env.NODE_ENV === 'production') {
+            return res.status(500).send({
+                status: "500 Internal Server Error",
+                message: "Could not Authorize. Problem from the backend !!"
+            })
+        }
+
         res.status(500).send({
             status: "500 Internal Server Error",
             message: err.message
@@ -147,22 +219,66 @@ exports.login = async (req, res, next) => {
 
 
 
+
 // Checks whether the user is logged in or not
+
+
+
+// Genarally the whole authentication should take place with the help of refresh token and acees token. But I didn't do in that way.
+// I created two tokens in the backend. One is server Side JWT Token and another is client side JWT Token. The client side token
+// gets stored into userRegisterData and in the cookie as well. And this token will be passed as Bearer token into all the requests.
+// The server side token is registered as httpOnlyCookie.
+// First when the request gets passed the client Side will go to the protect() route and it will be verified and then if it is 
+// verified the server side token will be verified and then the request will be executed in the backend. 
+// I feel if there is any changes made in the client side token there will be no problem as the backend will be ultimately get 
+// authorized by the client token and that cannot be changed as it is httpOnlyCookie. 
 exports.protect = async (req, res, next) => {
 
-    let token;
+    let clientToken;
 
 
     // Check if the token is present or not or is been passed in the header
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
 
-        token = req.headers.authorization.split(' ')[1];
+        clientToken = req.headers.authorization.split(' ')[1];
+
+        if (!clientToken) {
+            return res.status(401).send({
+                status: "401 Unauthorized",
+                message: "Sorry you are not logged in verifyToken!!"
+            })
+        }
+
+        // Verification of Token if somebody manipulated or not or already expired
+        // The Token returned from login or regiser does not have the scret key. So during verification we have to pass the 
+        // secret key as well to the verify() method.
+        const decoded = await promisify(jwt.verify)(clientToken, process.env.Client_Side_JWT_SECRET);
+
+
+        // After logging if the user gets deleted but the JWT Token does not get expired then can access the whole application untill 
+        // and unless JWT gets expired and is a security Breach.
+        // So check whether user is present in the DB or not.
+        let userData = await User.findById(decoded.id);
+
+
+        if (!userData) {
+            return res.status(401).send({
+                status: "401 Unauthorized",
+                message: "Sorry we couldn't verify it's you !!"
+            })
+        }
+
+        else {
+            serverToken = req.cookies.jwt
+        }
     }
 
-    if (!token)
+
+
+    if (!serverToken)
         return res.status(401).send({
             status: "401 Unauthorized",
-            message: "Sorry you are not logged in!!"
+            message: "Sorry you are not logged in"
         })
 
 
@@ -171,7 +287,7 @@ exports.protect = async (req, res, next) => {
         // Verification of Token if somebody manipulated or not or already expired
         // The Token returned from login or regiser does not have the scret key. So during verification we have to pass the 
         // secret key as well to the verify() method.
-        const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+        const decoded = await promisify(jwt.verify)(serverToken, process.env.Server_Side_JWT_SECRET);
 
 
         // After logging if the user gets deleted but the JWT Token does not get expired then can access the whole application untill 
@@ -180,11 +296,14 @@ exports.protect = async (req, res, next) => {
         const currentUser = await User.findById(decoded.id);
 
 
-        if (!currentUser)
+        if (!currentUser) {
             return res.status(401).send({
                 status: "401 Unauthorized",
                 message: ""
             })
+        }
+
+
 
 
         req.user = currentUser; // This will be used by other middleware
@@ -208,6 +327,29 @@ exports.protect = async (req, res, next) => {
 
     };
 
+}
+
+
+
+
+exports.logout = async (req, res, next) => {
+
+    // const cookieOptions = {
+    //     expires: new Date(Date.now() + 10 * 1000),
+
+    //     // secure:true, // Sends cookies only when the request is encrypted like https
+
+    //     httpOnly: true // This prevents any script in the browser like JS to access and modify the cookie from the Browser. 
+    //     // The cookie can only be accessed by the server like the Express Server here when request is happening from he server.
+    // }
+
+
+    res.clearCookie('jwt');
+
+    res.status(200).send({
+        status: '200 OK',
+        message: "Logged Out"
+    })
 }
 
 

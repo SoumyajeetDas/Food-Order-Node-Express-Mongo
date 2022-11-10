@@ -19,7 +19,8 @@ app.use(helmet());
 // CORS POLICY
 app.use(cors({
     origin: ["http://localhost:3000", 'https://bengali-food-webapp.netlify.app'],
-    methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH']
+    methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH'],
+    credentials:true
 }));
 
 
