@@ -161,9 +161,6 @@ exports.login = async (req, res, next) => {
             user.email = undefined;
 
 
-            // console.log(process.env.JWT_EXPIRESIn);
-
-
             const cookieOptions = {
                 expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRESIn * 24 * 60 * 60 * 1000),
 
@@ -234,18 +231,26 @@ exports.login = async (req, res, next) => {
 // authorized by the client token and that cannot be changed as it is httpOnlyCookie. 
 exports.protect = async (req, res, next) => {
 
+
     let clientToken;
 
-
-    // Check if the token is present or not or is been passed in the header
+    // Check if the token is present or not or is been passed in the header. 
+    // When the request will come from frontend the req.headers.authorization will always be present with Bearer.
+    // But from backend if we remove the token there will not be any.
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
 
-        clientToken = req.headers.authorization.split(' ')[1];
 
-        if (!clientToken) {
+        // When coming from the frontend it is passed it will be string like 'Bearer  undefined'. Keep in mind there will be
+        // an extra space before undefined. So we need to trim that space after splitting.
+        clientToken = req.headers.authorization.split(' ')[1].trim();
+
+
+        // After this it will become 'undefined'
+
+        if (clientToken === 'undefined' || !clientToken) {
             return res.status(401).send({
                 status: "401 Unauthorized",
-                message: "Sorry you are not logged in verifyToken!!"
+                message: "Sorry you are not logged with verifyToken!!"
             })
         }
 
@@ -276,63 +281,72 @@ exports.protect = async (req, res, next) => {
         }
 
         else {
-            serverToken = req.cookies.jwt
+            serverToken = req.cookies.jwt;
+
+
+
+
+            // client Token is verified now verification for the server Token
+            if (!serverToken)
+                return res.status(401).send({
+                    status: "401 Unauthorized",
+                    message: "Sorry you are not logged in with server token"
+                })
+
+
+
+            try {
+                // Verification of Token if somebody manipulated or not or already expired
+                // The Token returned from login or regiser does not have the scret key. So during verification we have to pass the 
+                // secret key as well to the verify() method.
+                const decoded = await promisify(jwt.verify)(serverToken, process.env.Server_Side_JWT_SECRET);
+
+
+                // After logging if the user gets deleted but the JWT Token does not get expired then can access the whole application untill 
+                // and unless JWT gets expired and is a security Breach.
+                // So check whether user is present in the DB or not.
+                const currentUser = await User.findById(decoded.id);
+
+
+                if (!currentUser) {
+                    return res.status(401).send({
+                        status: "401 Unauthorized",
+                        message: "Sorry we couldn't find you!!'"
+                    })
+                }
+
+
+                req.user = currentUser; // This will be used by other middleware
+                next();
+
+            }
+            catch (err) {
+
+                if (process.env.NODE_ENV === 'production') {
+                    return res.status(401).send({
+                        status: "401 Unauthorized",
+                        message: "Not Authorized"
+                    })
+                }
+
+                res.status(401).send({
+                    status: "401 Unauthorized",
+                    message: err.message
+                })
+
+
+            };
         }
     }
 
 
-
-    if (!serverToken)
+    // If there is no req.header
+    else {
         return res.status(401).send({
             status: "401 Unauthorized",
-            message: "Sorry you are not logged in"
+            message: "Sorry you are not logged in !!"
         })
-
-
-
-    try {
-        // Verification of Token if somebody manipulated or not or already expired
-        // The Token returned from login or regiser does not have the scret key. So during verification we have to pass the 
-        // secret key as well to the verify() method.
-        const decoded = await promisify(jwt.verify)(serverToken, process.env.Server_Side_JWT_SECRET);
-
-
-        // After logging if the user gets deleted but the JWT Token does not get expired then can access the whole application untill 
-        // and unless JWT gets expired and is a security Breach.
-        // So check whether user is present in the DB or not.
-        const currentUser = await User.findById(decoded.id);
-
-
-        if (!currentUser) {
-            return res.status(401).send({
-                status: "401 Unauthorized",
-                message: ""
-            })
-        }
-
-
-
-
-        req.user = currentUser; // This will be used by other middleware
-
-        next();
     }
-    catch (err) {
-
-        if (process.env.NODE_ENV === 'production') {
-            return res.status(401).send({
-                status: "401 Unauthorized",
-                message: "Not Authorized"
-            })
-        }
-
-        res.status(401).send({
-            status: "401 Unauthorized",
-            message: err.message
-        })
-
-
-    };
 
 }
 

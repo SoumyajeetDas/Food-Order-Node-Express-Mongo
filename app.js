@@ -20,6 +20,8 @@ app.use(helmet());
 app.use(cors({
     origin: ["http://localhost:3000", 'https://bengali-food-webapp.netlify.app'],
     methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH'],
+
+    // Allows the credential(cookie) to be passed from the frontend of differet domain to the backend of different domain
     credentials:true
 }));
 
