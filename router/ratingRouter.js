@@ -1,15 +1,11 @@
 const express = require('express');
 const ratingController  = require('../controller/ratingController');
 const authController = require('../controller/authController');
-const cookieParser = require('cookie-parser');
 
 
 
 const router = express.Router();
 
-
-// For reading the cookie in the protect() middleware method
-router.use(cookieParser());
 
 router.use(express.json());
 

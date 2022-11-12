@@ -21,7 +21,6 @@ router
     .post("/signup", authController.signup)
     .post("/login", authController.login)
     .post("/forgotPassword", authController.forgotPassword)
-    .get("/logout", authController.logout)
 
 
 

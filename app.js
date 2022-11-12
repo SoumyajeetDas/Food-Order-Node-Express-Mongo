@@ -5,7 +5,7 @@ const cartRouter = require('./router/cartRouter');
 const ratingRouter = require('./router/ratingRouter');
 const orderRouter = require('./router/orderRouter')
 const cors = require('cors');
-var helmet =require('helmet');
+var helmet = require('helmet');
 
 
 
@@ -20,9 +20,7 @@ app.use(helmet());
 app.use(cors({
     origin: ["http://localhost:3000", 'https://bengali-food-webapp.netlify.app'],
     methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH'],
-
-    // Allows the credential(cookie) to be passed from the frontend of differet domain to the backend of different domain
-    credentials:true
+    credentials: true
 }));
 
 
