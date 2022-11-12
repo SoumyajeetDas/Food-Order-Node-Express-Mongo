@@ -170,9 +170,9 @@ exports.login = async (req, res, next) => {
                 // The cookie can only be accessed by the server like the Express Server here when request is happening from he server.
             }
 
-            // if (process.env.NODE_ENV === 'production') {
-            //     cookie.secure = true; // For production making the secure as true
-            // }
+            if (process.env.NODE_ENV === 'production') {
+                cookie.secure = true; // For production making the secure as true
+            }
 
             res.cookie('jwt', serverSideToken, cookieOptions)
 
