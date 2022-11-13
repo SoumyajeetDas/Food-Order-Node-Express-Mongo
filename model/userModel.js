@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs'); // Will be used for Hashing
+const client = require('@sendgrid/mail')
 
 
 
@@ -60,6 +61,32 @@ userSchema.pre('save', async function (next) {
 
 
     this.confirmpassword = undefined; // Making it undefined and hence will not be saved in MongoDB.
+});
+
+
+
+userSchema.post('save', async function () {
+
+    client.setApiKey(process.env.SENDGRID_API_KEY);
+
+    client.send({
+        to:{
+            email:this.email,
+            name:this.name
+        },
+        from:{
+            email:process.env.MY_SECRET_EMAIL,
+            name:'The Bengalis'
+        },
+        templateId:'d-14f9702cbb03466f8226254db4a1da7a',
+        dynamicTemplateData:{
+            name:this.name
+        }
+    }).then(()=>{
+        console.log("Email Sent!!")
+    }).catch((err)=>{
+        console.log(err);
+    })
 })
 
 
