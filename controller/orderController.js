@@ -4,7 +4,7 @@ const Order = require('../model/orderModel');
 /*******************************Get the Payment Order for an user*******************************************/
 exports.getOrderForUser = async (req, res) => {
     try {
-        const orderData = await Order.find({userId:req.user._id}).sort({dateOfOrder:-1, orderId:1});
+        const orderData = await Order.find({ userId: req.user._id }).sort({ dateOfOrder: -1, orderId: 1 });
 
         if (orderData.length === 0) {
             return res.status(400).send({
@@ -15,7 +15,7 @@ exports.getOrderForUser = async (req, res) => {
 
         res.status(200).send({
             status: '200 OK',
-            length:orderData.length,
+            length: orderData.length,
             orderData
         });
     }
@@ -44,7 +44,12 @@ exports.addOrder = async (req, res) => {
         req.body.userId = req.user._id;
         const orderData = await Order.create(req.body);
 
-
+        if (!orderData) {
+            return res.status(500).send({
+                status: '500 Internal Server Error',
+                order: err.message
+            })
+        }
         res.status(201).send({
             status: '201 Created',
             order: orderData

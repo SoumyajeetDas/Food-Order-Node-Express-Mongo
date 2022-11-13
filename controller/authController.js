@@ -208,27 +208,44 @@ exports.protect = async (req, res, next) => {
         });
     }
 
-
-    // Verification of Token if somebody manipulated or not or already expired
-    const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-
-
-    // After logging if the user gets deleted but the JWT Token does not get expired then can access the whole application untill 
-    // and unless JWT gets expired and is a security Breach.
-    // So check whether user is present in the DB or not.
-    const currentUser = await User.findById(decoded.id);
+    try {
+        // Verification of Token if somebody manipulated or not or already expired
+        const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
 
-    if (!currentUser)
-        return res.status(401).send({
+        // After logging if the user gets deleted but the JWT Token does not get expired then can access the whole application untill 
+        // and unless JWT gets expired and is a security Breach.
+        // So check whether user is present in the DB or not.
+        const currentUser = await User.findById(decoded.id);
+
+
+        if (!currentUser)
+            return res.status(401).send({
+                status: "401 Unauthorized",
+                message: "The user belonging to this token no longer exists"
+            })
+
+
+        req.user = currentUser; // This will be used by other middleware
+
+        next();
+    }
+
+    catch(err){
+
+        if(process.env.NODE_ENV !== 'production'){
+            return res.status(401).send({
+                status: "401 Unauthorized",
+                message:"Please login into your account!!"
+            })
+        }
+
+
+        res.status(401).send({
             status: "401 Unauthorized",
-            message: "The user belonging to this token no longer exists"
+            message:err.message
         })
-
-
-    req.user = currentUser; // This will be used by other middleware
-
-    next();
+    }
 
 }
 

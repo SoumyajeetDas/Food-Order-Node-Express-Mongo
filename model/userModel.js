@@ -64,7 +64,7 @@ userSchema.pre('save', async function (next) {
 });
 
 
-
+// Post Document Middleware for sending email after registartion.
 userSchema.post('save', async function () {
 
     client.setApiKey(process.env.SENDGRID_API_KEY);
@@ -87,7 +87,7 @@ userSchema.post('save', async function () {
     }).catch((err)=>{
         console.log(err);
     })
-})
+});
 
 
 /******************Instance Methods*********************/
