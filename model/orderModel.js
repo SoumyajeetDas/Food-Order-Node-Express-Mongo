@@ -65,8 +65,8 @@ const orderSchema = new mongoose.Schema({
 // Post Document Middleware for sending email after order is siccessfull.
 orderSchema.post('save', async function () {
 
-    const user = await User.find({ id: this.userId });
-    // console.log(this.paymentStatus);
+
+    const user = await User.find({ _id: this.userId });
 
     if (this.paymentStatus === "Success") {
         client.setApiKey(process.env.SENDGRID_API_KEY);
@@ -86,7 +86,7 @@ orderSchema.post('save', async function () {
                 orderId: this.orderId
             }
         }).then(() => {
-            console.log("Email Sent!!")
+            console.log(`Email Sent to ${user[0].name}!!`)
         }).catch((err) => {
             console.log(err);
         });
@@ -111,7 +111,7 @@ orderSchema.post('save', async function () {
                 orderId: this.orderId
             }
         }).then(() => {
-            console.log("Email Sent!!")
+            console.log(`Email Sent to ${user[0].name}!!`)
         }).catch((err) => {
             console.log(err);
         });
