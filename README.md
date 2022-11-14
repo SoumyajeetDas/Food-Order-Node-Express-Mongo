@@ -22,6 +22,8 @@ Backend of Web App named as THE BENGALIS. The Backend Business Logic is written 
 
 ![](https://img.shields.io/badge/Mongoose-6.6.5-important?style=for-the-badge)
 
+![](https://img.shields.io/badge/Node%20JS-16.x-important?style=for-the-badge)
+
 ![](https://img.shields.io/badge/cors-2.8.5-important?style=for-the-badge)
 
 ![](https://img.shields.io/badge/jsonwebtoken-8.5.1-important?style=for-the-badge)
