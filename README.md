@@ -5,6 +5,32 @@ Backend of Web App named as THE BENGALIS. The Backend Business Logic is written 
 
 
 
+
+## Badges
+
+![](https://img.shields.io/badge/Maintained-Yes-brightgreen?style=for-the-badge)
+
+![](https://img.shields.io/badge/API%20Running-Yes-brightgreen?style=for-the-badge)
+
+![](https://img.shields.io/badge/Made%20with-Node%20JS-informational?style=for-the-badge)
+
+![](https://img.shields.io/badge/Made%20with-Express%20JS-informational?style=for-the-badge)
+
+![](https://img.shields.io/badge/Made%20with-Mongoose-informational?style=for-the-badge)
+
+![](https://img.shields.io/badge/Express-4.18.2-important?style=for-the-badge)
+
+![](https://img.shields.io/badge/Mongoose-6.6.5-important?style=for-the-badge)
+
+![](https://img.shields.io/badge/cors-2.8.5-important?style=for-the-badge)
+
+![](https://img.shields.io/badge/jsonwebtoken-8.5.1-important?style=for-the-badge)
+
+![](https://img.shields.io/badge/%40sendgrid/mail-7.7.0-important?style=for-the-badge)
+
+
+
+
 ## Author
 
 Soumyajeet Das
@@ -15,6 +41,8 @@ Soumyajeet Das
 
 - Node JS
 - Express JS
+- Mongoose
+- CORS(Cross Origin Resource Sharing)
 - Redux Thunk by asyncThunk Creator
 - Mongo DB
 - JWT(JSON Web Token)
@@ -38,8 +66,6 @@ The Mongo DB is hosted in Atlas, a cloud DB Service.
 - 🌱 I’m currently learning **MERN Stack**
 
 - 💬 Ask me about **React, Redux, Node JS, Mongo DB**
-
-- 📫 How to reach me **soumyajeetdas1998@gmail.com**
 
 
 
