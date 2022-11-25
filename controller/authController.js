@@ -2,9 +2,11 @@ const User = require('../model/userModel');
 const Cart = require('../model/cartModel');
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
+const crypto = require('crypto');
+const sendEmail = require('../utils/email');
+const client = require('@sendgrid/mail');
 
 
-let serverToken;
 
 
 /***********************************Creating JWT Token and returning back*********************************/
@@ -52,7 +54,6 @@ exports.signup = async (req, res, next) => {
 
 
         newUser.password = undefined; // Password should not be shown to the client
-        newUser.email = undefined;
 
 
         //Creating Token
@@ -78,6 +79,29 @@ exports.signup = async (req, res, next) => {
             },
             cart: newCart
         });
+
+
+        /****************************Sending Email To Client**************************/
+        client.setApiKey(process.env.SENDGRID_API_KEY);
+
+        client.send({
+            to: {
+                email: newUser.email,
+                name: newUser.name
+            },
+            from: {
+                email: process.env.MY_SECRET_EMAIL,
+                name: 'The Bengalis'
+            },
+            templateId: 'd-14f9702cbb03466f8226254db4a1da7a',
+            dynamicTemplateData: {
+                name: newUser.name
+            }
+        }).then(() => {
+            console.log("Email Sent!!")
+        }).catch((err) => {
+            console.log(err);
+        })
 
     }
     catch (err) {
@@ -231,19 +255,19 @@ exports.protect = async (req, res, next) => {
         next();
     }
 
-    catch(err){
+    catch (err) {
 
-        if(process.env.NODE_ENV !== 'production'){
+        if (process.env.NODE_ENV !== 'production') {
             return res.status(401).send({
                 status: "401 Unauthorized",
-                message:"Please login into your account!!"
+                message: "Please login into your account!!"
             })
         }
 
 
         res.status(401).send({
             status: "401 Unauthorized",
-            message:err.message
+            message: err.message
         })
     }
 
@@ -252,49 +276,167 @@ exports.protect = async (req, res, next) => {
 
 
 
-exports.forgotPassword = async (req, res) => {
+exports.forgotPassword = async (req, res, next) => {
+
+
+    // Get user based on the email address
+    const user = await User.findOne({ email: req.body.email }).select('+password');
+
     try {
-        const { email, password, confirmpassword } = req.body;
-
-        if (!email || !password)
+        if (!user)
             return res.status(400).send({
-                status: "400 Bad Request",
-                message: "Please provide the username and password"
-            })
+                status: '400 Bad Request',
+                message: "Requested email address not available"
+            });
 
 
-        const userData = await User.findOne({ email });
+        const resetToken = user.createPasswordResetToken(); // We get an unencrypted long string from instance method explained in model
 
-        if (!userData) {
-            return res.status(400).send({
-                status: "400 Bad Request",
-                message: "Please provide correct email address"
-            })
-        }
 
-        userData.password = password;
-        userData.confirmpassword = confirmpassword
 
-        await userData.save();
+        // The passwordResetToken and passwordResetExpires instance Method in the userModel is not saved only instantiated so
+        // with save() we are saving in the Mongo DB
+
+        await user.save({ validateBeforeSave: false }); // Before save validation occurs, so to prevent that we use validateBeforeSave.
+        // If not done will throw error as Password field is required.
+
+
+
+
+
+        /****************************Testing Email**************************/
+
+
+        //req.protocol tells http/https  req.get('host')tells like localhost:4000
+        const resetUrl = `www.google.com with ${resetToken}`;
+
+
+        const message = `Forgot your Password? Please change the email in ${resetUrl}. \n If you didn't forgot your password, please 
+        ignore this email`;
+
+
+
+        // We have to use try catch here otherwise we will not able to set the user.passwordResetToken & user.passwordResetExpires
+        // when any error will happen.
+
+        await sendEmail({
+            email: user.email,
+            subject: "Your password reset token will be valid for 10mins",
+            message
+        })
+
+
+
+
+        /****************************Sending Email To Client**************************/
+        client.setApiKey(process.env.SENDGRID_API_KEY);
+
+        client.send({
+            to: {
+                email: user.email,
+                name: user.name
+            },
+            from: {
+                email: process.env.MY_SECRET_EMAIL,
+                name: 'The Bengalis'
+            },
+            templateId: 'd-e49fda60cd68485d8ce58f25a8edb75f',
+            dynamicTemplateData: {
+                name: user.name,
+                token: resetToken
+            }
+        }).then(() => {
+            console.log("Token Email Sent!!")
+        }).catch((err) => {
+            console.log(err);
+        })
 
         res.status(200).send({
             status: "200 OK",
-            message: "Password has been updated. Please login now with the new password"
+            message: "Token sent to email!"
         })
     }
+    catch (error) {
 
-    catch (err) {
+        user.passwordResetToken = undefined;
+        user.passwordResetExpires = undefined;
+        await user.save({ validateBeforeSave: false })
+
+
+
         if (process.env.NODE_ENV === 'production') {
             return res.status(500).send({
                 status: "500 Internal Server Error",
-                message: "Sorry !! Password Could not be updated"
+                message: "There was a problem from the backend. Please try again later"
+            });
+        }
+
+        return res.status(500).send({
+            status: "500 Internal Server Error",
+            message: error.message
+        });
+    }
+
+};
+
+
+
+// This is reset Password who are not logged in
+exports.resetPassword = async (req, res, next) => {
+
+    try {
+        // Encrypting the token coming from the id in the paramter
+        const hashToken = crypto
+            .createHash('sha256')
+            .update(req.body.token)
+            .digest('hex')
+
+
+        // After encrypting need to find whether the encrypted Token is present in passwordResetToken or not and whether the 
+        // passwordResetExpires is greater than the current date or not.
+        const user = await User.findOne({
+            passwordResetToken: hashToken,
+            passwordResetExpires: { $gt: Date.now() }
+        }).select('+password');
+
+        if (!user) {
+            return res.status(400).send({
+                status: '400 Bad Request',
+                message: "Token  has expired or wrong token"
             })
         }
 
-        res.status(500).send({
-            status: "500 Internal Server Error",
-            message: err.message
-        })
+        user.password = req.body.password;
+        user.confirmpassword = req.body.confirmpassword;
+        user.passwordResetToken = undefined;
+        user.passwordResetExpires = undefined;
 
+
+
+        await user.save(); // The password will automaticaaly get hashed when it see the save() by the pre middleware in the userModel.js
+
+
+        // Returning the token
+        res.status(200).send({
+            status: "200 OK",
+            message: "Password updated successfully. Please login into your account"
+        })
     }
-}
+
+    catch (error) {
+
+        if (process.env.NODE_ENV === 'production') {
+            return res.status(500).send({
+                status: "500 Internal Server Error",
+                message: "There was a problem from the backend. Please try again later"
+            });
+        }
+
+        return res.status(500).send({
+            status: "500 Internal Server Error",
+            message: error.message
+        });
+    }
+
+
+};

@@ -21,6 +21,8 @@ router
     .post("/signup", authController.signup)
     .post("/login", authController.login)
     .post("/forgotPassword", authController.forgotPassword)
+    .post("/resetPassword/",authController.resetPassword)
+    
 
 
 

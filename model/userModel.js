@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
-const validator = require('validator');
 const bcrypt = require('bcryptjs'); // Will be used for Hashing
-const client = require('@sendgrid/mail')
+const crypto = require('crypto');
 
 
 
@@ -44,7 +43,9 @@ const userSchema = new mongoose.Schema({
             },
             message: "Password and Confirm Password does not match"
         }
-    }
+    },
+    passwordResetToken : String,
+    passwordResetExpires : Date
 });
 
 
@@ -55,6 +56,11 @@ const userSchema = new mongoose.Schema({
 // 'pre' tells that the Middleware will run before saving the document into the DB
 userSchema.pre('save', async function (next) {
 
+    // If password is modified then go for further execution if password not modified no get the control out
+    if(!this.isModified('password')){
+        return next();  // To prevent from furthere execution of code in this middleware and to go to the next middleware.
+    } 
+
     // Here 12 is the salt length, the more the salt length more encrypted the data will be. For now 12 is the best.
     // Insted of 12 we can give the salt strig as well.
     this.password = await bcrypt.hash(this.password, 12);
@@ -63,31 +69,6 @@ userSchema.pre('save', async function (next) {
     this.confirmpassword = undefined; // Making it undefined and hence will not be saved in MongoDB.
 });
 
-
-// Post Document Middleware for sending email after registartion.
-userSchema.post('save', async function () {
-
-    client.setApiKey(process.env.SENDGRID_API_KEY);
-
-    client.send({
-        to:{
-            email:this.email,
-            name:this.name
-        },
-        from:{
-            email:process.env.MY_SECRET_EMAIL,
-            name:'The Bengalis'
-        },
-        templateId:'d-14f9702cbb03466f8226254db4a1da7a',
-        dynamicTemplateData:{
-            name:this.name
-        }
-    }).then(()=>{
-        console.log("Email Sent!!")
-    }).catch((err)=>{
-        console.log(err);
-    })
-});
 
 
 /******************Instance Methods*********************/
@@ -98,6 +79,22 @@ userSchema.methods.correctPassword = async function (candidatePassword, userPass
 
     // Once hashing done can't be reverted back. So candidatePassword is encryptrd by bycrypt algo and comapred with User Pasword
     return await bcrypt.compare(candidatePassword, userPassword); // Returns True or False
+}
+
+
+userSchema.methods.createPasswordResetToken = function(){
+    const resetToken = crypto.randomBytes(32).toString("hex"); // randomBytes() sends a buffer and that gets converted into a 
+                                                              //hexa decimal number
+
+
+    // Just adding values to the passwordResetToken and passwordResetExpires but yet not saved to DB.
+    // Saving to DB will occur in authController by the function save().                                                      
+    this.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex') // We encrypted the token. Not much solid encryption is required as 
+                                                                                          // chances of attack is very less 
+    this.passwordResetExpires = Date.now() +10*60*1000;
+
+    return resetToken; // This sends  the unencrypted long string
+                                                                 
 }
 
 
