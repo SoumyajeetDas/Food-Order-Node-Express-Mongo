@@ -49,6 +49,8 @@ Soumyajeet Das
 - Mongo DB
 - JWT(JSON Web Token)
 - Sending Mails through Email Delivery Service (SendGrid) with Node JS
+- Testing email with Nodemailer and MailTrap
+- Deployed to Vercel using CI/CD pipeline configuration.
 
 
 
