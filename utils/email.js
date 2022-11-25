@@ -3,22 +3,13 @@ const nodemailer = require('nodemailer');
 const sendEmail = async (options) => {
 
 
-    // Chack with dedicated email addresses
-    // const transporter = nodemailer.createTransport({
-    //     service:'Gmail',
-    //     auth: {
-    //         user: process.env.EMAIL_USERNAME,
-    //         pass: process.env.EMAIL_PASSWORD
-    //     }
-    // });
-
-    // This is checking in MailTrapper
+    // This is checking in MailTrap
     var transporter = nodemailer.createTransport({
-        host: "smtp.mailtrap.io",
-        port: 2525,
+        host: process.env.EMAIL_HOST,
+        port: process.env.EMAIL_PORT,
         auth: {
-            user: "9a9b5dd59b8564",
-            pass: "ca625243176eab"
+            user: process.env.EMAIL_USERNAME,
+            pass: process.env.EMAIL_PASSWORD
         }
     });
 
