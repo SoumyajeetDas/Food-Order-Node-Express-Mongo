@@ -62,7 +62,7 @@ The Mongo DB is hosted in Atlas, a cloud DB Service.
 
 
 ## 🚀 About Me
-<h1 align="center">Hi 👋, I'm Soumyajeet Das</h1>
+<h1 align="center">Hi 👋, I'm Soumyajeet</h1>
 <h3 align="center">A passionate full stack developer</h3>
 
 - 🔭 I’m currently working with **Cognizant**
@@ -81,9 +81,11 @@ The Mongo DB is hosted in Atlas, a cloud DB Service.
 
 ![](https://img.shields.io/badge/CSS-239120?&style=for-the-badge&logo=css3&logoColor=white)
 
+![](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+
 ![](https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white)
 
-![](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![](https://img.shields.io/badge/Material--UI-0081CB?style=for-the-badge&logo=material-ui&logoColor=white)
 
 ![](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
 
