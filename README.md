@@ -103,3 +103,6 @@ The Mongo DB is hosted in Atlas, a cloud DB Service.
 
 [![linkedin](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/soumyajeet-das-5bb568224/)
 
+[![portfolio](https://img.shields.io/badge/my_portfolio-000?style=for-the-badge&logo=ko-fi&logoColor=white)](https://soumyajeet-portfolio.netlify.app/)
+
+
