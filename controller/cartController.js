@@ -37,7 +37,7 @@ exports.getCartData = async (req, res) => {
     catch (err) {
         res.status(500).send({
             status: '500 Internal Server Error',
-            message: 'Problem for the backend'
+            message: 'Problem from the backend'
         });
     }
 }

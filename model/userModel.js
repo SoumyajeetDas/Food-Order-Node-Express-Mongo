@@ -10,18 +10,34 @@ const userSchema = new mongoose.Schema({
         required: [true, "Please enter your UserName"],
         trim: true
     },
+    phone: {
+        type: String,
+        required: [true, "Please enter your phone Number"],
+        validate:{
+            validator: function (val){
+                let validRegex = /^[\d]{10}$/;
+
+                return validRegex.test(val)
+            },
+            message:"Please enter a valid phone number"
+        }
+    },
+    address:{
+        type:String,
+        required: [true, "Please enter your address"]
+    },
     email: {
         type: String,
         required: [true, "Please enter your Email"],
         unique: true,
         trim: true,
         lowercase: true,
-        validate:{
-            validator:function(val){
+        validate: {
+            validator: function (val) {
                 let validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
                 return validRegex.test(val)
             },
-            message:"Please enter a valid email address"
+            message: "Please enter a valid email address"
         }
 
         // validate: [validator.isEmail, 'Please provide a valid email address']
@@ -44,8 +60,8 @@ const userSchema = new mongoose.Schema({
             message: "Password and Confirm Password does not match"
         }
     },
-    passwordResetToken : String,
-    passwordResetExpires : Date
+    passwordResetToken: String,
+    passwordResetExpires: Date
 });
 
 
@@ -57,9 +73,9 @@ const userSchema = new mongoose.Schema({
 userSchema.pre('save', async function (next) {
 
     // If password is modified then go for further execution if password not modified no get the control out
-    if(!this.isModified('password')){
+    if (!this.isModified('password')) {
         return next();  // To prevent from furthere execution of code in this middleware and to go to the next middleware.
-    } 
+    }
 
     // Here 12 is the salt length, the more the salt length more encrypted the data will be. For now 12 is the best.
     // Insted of 12 we can give the salt strig as well.
@@ -82,19 +98,19 @@ userSchema.methods.correctPassword = async function (candidatePassword, userPass
 }
 
 
-userSchema.methods.createPasswordResetToken = function(){
+userSchema.methods.createPasswordResetToken = function () {
     const resetToken = crypto.randomBytes(32).toString("hex"); // randomBytes() sends a buffer and that gets converted into a 
-                                                              //hexa decimal number
+    //hexa decimal number
 
 
     // Just adding values to the passwordResetToken and passwordResetExpires but yet not saved to DB.
     // Saving to DB will occur in authController by the function save().                                                      
     this.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex') // We encrypted the token. Not much solid encryption is required as 
-                                                                                          // chances of attack is very less 
-    this.passwordResetExpires = Date.now() +10*60*1000;
+    // chances of attack is very less 
+    this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
 
     return resetToken; // This sends  the unencrypted long string
-                                                                 
+
 }
 
 

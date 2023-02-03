@@ -3,7 +3,8 @@ const foodRouter = require('./router/foodRouter');
 const authRouter = require('./router/authRouter');
 const cartRouter = require('./router/cartRouter');
 const ratingRouter = require('./router/ratingRouter');
-const orderRouter = require('./router/orderRouter')
+const orderRouter = require('./router/orderRouter');
+const userRouter = require('./router/userRouter');
 const cors = require('cors');
 var helmet = require('helmet');
 
@@ -30,6 +31,7 @@ app.use("/api/v1/authenticate", authRouter);
 app.use("/api/v1/cart", cartRouter);
 app.use("/api/v1/review", ratingRouter);
 app.use("/api/v1/order", orderRouter);
+app.use("/api/v1/user", userRouter);
 
 
 // Router for any type of routing for 404 error 
