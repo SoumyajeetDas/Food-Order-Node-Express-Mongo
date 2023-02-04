@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const app = require('./app')
+const app = require('./app');
 
 
 //Configuring the required environment into Node JS which is present in config.env file.
@@ -19,7 +19,6 @@ mongoose.connect(connectionString).then(() => {
     }
     console.log(error);
 })
-
 
 
 // Configuring port number

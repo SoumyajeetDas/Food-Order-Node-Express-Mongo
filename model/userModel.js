@@ -13,17 +13,17 @@ const userSchema = new mongoose.Schema({
     phone: {
         type: String,
         required: [true, "Please enter your phone Number"],
-        validate:{
-            validator: function (val){
+        validate: {
+            validator: function (val) {
                 let validRegex = /^[\d]{10}$/;
 
                 return validRegex.test(val)
             },
-            message:"Please enter a valid phone number"
+            message: "Please enter a valid phone number"
         }
     },
-    address:{
-        type:String,
+    address: {
+        type: String,
         required: [true, "Please enter your address"]
     },
     email: {
@@ -59,6 +59,14 @@ const userSchema = new mongoose.Schema({
             },
             message: "Password and Confirm Password does not match"
         }
+    },
+    profilePic: {
+        type: String,
+        default: ''
+    },
+    profilePicId: {
+        type: String,
+        default: ''
     },
     passwordResetToken: String,
     passwordResetExpires: Date

@@ -15,5 +15,7 @@ router.use(express.json());
 router.use(authController.protect);
 
 router.get("/profile",userController.getUserData);
+router.put("/profilepic",userController.addProfilePhoto);
+router.get("/deleteprofilepic",userController.deleteProfilePic);
 
 module.exports = router;
